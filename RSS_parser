@@ -1,0 +1,84 @@
+import pandas as pd
+import feedparser
+from bs4 import BeautifulSoup
+#import urllib.request
+from bs4.element import Comment
+from urllib.request import Request, urlopen
+from datetime import datetime
+from time import mktime
+
+
+url = "https://news.google.com/rss/search?q=bch%20when%3A7d&hl=en-US&gl=US&ceid=US%3Aen"  #was num=100
+
+#dcollection_link = database_link + '/colls/' + 'pythonrssfeed'
+
+
+class ParseFeed():
+
+    def __init__(self, url):
+        self.feed_url = url
+        
+
+    def parse(self):
+        '''
+        Parse the URL, and print all the details of the news 
+        '''
+            
+
+        feeds = feedparser.parse(self.feed_url).entries
+        self.pubdate_list = []
+        self.link_list = []
+        self.body_list = []
+        #link_list = []
+        #body_list= []
+        for f in feeds:
+            test_list=[]
+            test_list.append(f.get("link"))
+            #print(test_list)
+            d=f.get("published_parsed")
+            self.pubdate_list.append(d)
+            
+            def tag_visible(element):
+                if element.parent.name in ['style', 'script', 'head', 'title', 'meta', '[document]']:
+                    return False
+                if isinstance(element, Comment):
+                    return False
+                return True            
+            
+            
+            for link in test_list:
+                
+                def text_from_html(body):
+                    soup = BeautifulSoup(body, "html.parser")
+                    texts = soup.findAll(text=True)
+                    visible_texts = filter(tag_visible, texts)  
+                    return u" ".join(t.strip() for t in visible_texts)
+                
+                try:
+                    req = Request(link, headers={'User-Agent': 'Mozilla/5.0'})
+                    html = urlopen(req).read()
+                    body_part = text_from_html(html)
+                    
+                    self.link_list.append(link)
+                    self.body_list.append(body_part)
+                    #body_list.append(body_part)
+#                    print(self.link_list)
+                except:
+                    continue
+
+
+feed = ParseFeed(url)
+feed.parse()
+
+
+pub_date_end = []
+for pdate in feed.pubdate_list:
+    pdate = datetime.fromtimestamp(mktime(pdate))
+    pub_date_end.append(pdate)
+
+
+
+data_load =pd.DataFrame(list(zip(feed.link_list,pub_date_end, feed.body_list)), 
+               columns =['link', 'date','body']) 
+
+

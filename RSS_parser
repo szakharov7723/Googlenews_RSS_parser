@@ -7,37 +7,32 @@ from urllib.request import Request, urlopen
 from datetime import datetime
 from time import mktime
 
-
+#define rss feed link to parse
 url = "https://news.google.com/rss/search?q=bch%20when%3A7d&hl=en-US&gl=US&ceid=US%3Aen"  #was num=100
 
-#dcollection_link = database_link + '/colls/' + 'pythonrssfeed'
-
-
+#create class to parse rss feed
 class ParseFeed():
 
     def __init__(self, url):
         self.feed_url = url
         
-
-    def parse(self):
-        '''
-        Parse the URL, and print all the details of the news 
-        '''
-            
-
+    #create object for parsing rss feed and its links
+    def parse(self):      
+        
         feeds = feedparser.parse(self.feed_url).entries
+        #prepare executable lists for future data load
         self.pubdate_list = []
         self.link_list = []
         self.body_list = []
-        #link_list = []
-        #body_list= []
+        
+        # gather links to parse from rss feed and get their publish date
         for f in feeds:
             test_list=[]
             test_list.append(f.get("link"))
-            #print(test_list)
             d=f.get("published_parsed")
             self.pubdate_list.append(d)
             
+            #clean links from html elements not present in article text
             def tag_visible(element):
                 if element.parent.name in ['style', 'script', 'head', 'title', 'meta', '[document]']:
                     return False
@@ -45,7 +40,7 @@ class ParseFeed():
                     return False
                 return True            
             
-            
+            #parse each link in rss feed to get their content and link itself
             for link in test_list:
                 
                 def text_from_html(body):
@@ -66,19 +61,19 @@ class ParseFeed():
                 except:
                     continue
 
-
+#parse our rss feed to get content, link and published  date
 feed = ParseFeed(url)
 feed.parse()
 
-
+#format published date
 pub_date_end = []
 for pdate in feed.pubdate_list:
     pdate = datetime.fromtimestamp(mktime(pdate))
     pub_date_end.append(pdate)
 
-
+#structure our rss feed  data to load and analyze it later 
 
 data_load =pd.DataFrame(list(zip(feed.link_list,pub_date_end, feed.body_list)), 
-               columns =['link', 'date','body']) 
+               columns =['link', 'publish date','body']) 
 
 

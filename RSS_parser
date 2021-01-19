@@ -1,4 +1,4 @@
-%python
+
 import pandas as pd
 import feedparser
 from bs4 import BeautifulSoup
@@ -8,8 +8,7 @@ from urllib.request import Request, urlopen
 from datetime import datetime
 from time import mktime
 
-
-#THIS IS THE OPTIMAL WORKING CODE. USE THIS AS A FINAL. 
+ 
 
 url = "https://news.google.com/rss/search?q=bch%20when%3A180d&hl=en-US&gl=US&ceid=US%3Aen"  #this rss gathers news about bitcoin cash for the last 180 days.
 

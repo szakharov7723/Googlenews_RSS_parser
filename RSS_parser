@@ -1,3 +1,4 @@
+%python
 import pandas as pd
 import feedparser
 from bs4 import BeautifulSoup
@@ -7,32 +8,37 @@ from urllib.request import Request, urlopen
 from datetime import datetime
 from time import mktime
 
-#define rss feed link to parse
-url = "https://news.google.com/rss/search?q=bch%20when%3A7d&hl=en-US&gl=US&ceid=US%3Aen"  #was num=100
 
-#create class to parse rss feed
+#THIS IS THE OPTIMAL WORKING CODE. USE THIS AS A FINAL. 
+
+url = "https://news.google.com/rss/search?q=bch%20when%3A180d&hl=en-US&gl=US&ceid=US%3Aen"  #this rss gathers news about bitcoin cash for the last 180 days.
+
+
 class ParseFeed():
 
     def __init__(self, url):
         self.feed_url = url
         
-    #create object for parsing rss feed and its links
-    def parse(self):      
-        
+
+    def parse(self):
+        '''
+        Parse the URL, and print all the details of the news 
+        '''
+            
+
         feeds = feedparser.parse(self.feed_url).entries
-        #prepare executable lists for future data load
-        self.pubdate_list = []
+        self.pubdate_list = [] # create callable lists
         self.link_list = []
         self.body_list = []
         
-        # gather links to parse from rss feed and get their publish date
+        # gather links from rss for article extraction
         for f in feeds:
             test_list=[]
             test_list.append(f.get("link"))
             d=f.get("published_parsed")
             self.pubdate_list.append(d)
             
-            #clean links from html elements not present in article text
+            #create some basic cleaning code
             def tag_visible(element):
                 if element.parent.name in ['style', 'script', 'head', 'title', 'meta', '[document]']:
                     return False
@@ -40,40 +46,39 @@ class ParseFeed():
                     return False
                 return True            
             
-            #parse each link in rss feed to get their content and link itself
+            #parse links in rss feed
             for link in test_list:
-                
                 def text_from_html(body):
                     soup = BeautifulSoup(body, "html.parser")
                     texts = soup.findAll(text=True)
                     visible_texts = filter(tag_visible, texts)  
                     return u" ".join(t.strip() for t in visible_texts)
                 
+                # some websites really don't like spiders and other bots, while we can --we won't try to bypass them.
                 try:
-                    req = Request(link, headers={'User-Agent': 'Mozilla/5.0'})
+                    req = Request(link, headers={'user-agent': 'Mozilla/5.0 (Windows NT 6.3; rv:36.0) ..'})
                     html = urlopen(req).read()
                     body_part = text_from_html(html)
                     
                     self.link_list.append(link)
                     self.body_list.append(body_part)
-                    #body_list.append(body_part)
-#                    print(self.link_list)
                 except:
                     continue
 
-#parse our rss feed to get content, link and published  date
+#initiate parser
 feed = ParseFeed(url)
 feed.parse()
 
-#format published date
+
+#convert struct date structure to timestamp
 pub_date_end = []
 for pdate in feed.pubdate_list:
-    pdate = datetime.fromtimestamp(mktime(pdate))
+    pdate = str(datetime.fromtimestamp(mktime(pdate)))
     pub_date_end.append(pdate)
 
-#structure our rss feed  data to load and analyze it later 
+#test parser
+print(feed.link_list)
 
-data_load =pd.DataFrame(list(zip(feed.link_list,pub_date_end, feed.body_list)), 
-               columns =['link', 'publish date','body']) 
+
 
 

@@ -10,7 +10,7 @@ from time import mktime
 
  
 
-url = "https://news.google.com/rss/search?q=bch%20when%3A180d&hl=en-US&gl=US&ceid=US%3Aen"  #this rss gathers news about bitcoin cash for the last 180 days.
+url = "https://news.google.com/rss/search?q="bitcoin%20cash"%20when%3A1d&hl=en-US&gl=US&ceid=US%3Aen"  #this rss gathers news about bitcoin cash for the last 180 days.
 
 
 class ParseFeed():

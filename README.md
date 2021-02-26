@@ -1,13 +1,9 @@
 # Googlenews_RSS_parser
 
-This code shows how to parse rss feed of google news including each link in rss
-This RSS feed code can serve various goals but mostly serve one purpose -- gather content from google news articles.
+This repo shows how to parse RSS feed specifically each link in RSS for titles, body and date, giving sentiment to parsed data and loading it to NoSQL
 
-In order to run this code you should the following libraries installed in python
-feedparser
-BeautifulSoup
-urllib
-datetime
-time
+RSS_parser shows how to parse each link in RSS feed  daily https://github.com/szakharov7723/Googlenews_RSS_parser/blob/main/RSS_parser
 
+Shows how to apply ml model to parsed data https://github.com/szakharov7723/Googlenews_RSS_parser/blob/main/RSS_sentiment_analyzer
 
+Shows how to load data to NoSQL https://github.com/szakharov7723/Googlenews_RSS_parser/blob/main/RSS_data_load
